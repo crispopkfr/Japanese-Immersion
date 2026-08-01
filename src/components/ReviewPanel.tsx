@@ -152,6 +152,7 @@ export const ReviewPanel: React.FC = () => {
 
     saveSrsSettings(updated);
     setSrsSettings(updated);
+    setMode("deck_summary");
   };
 
   // Reset Options
@@ -241,7 +242,7 @@ export const ReviewPanel: React.FC = () => {
 
             <div className="flex items-center gap-3 shrink-0">
               <span className="text-xs font-mono font-bold text-zinc-500 uppercase">
-                {dueCards.length} DUE
+                {dueCards.length}
               </span>
 
               <button
@@ -261,27 +262,30 @@ export const ReviewPanel: React.FC = () => {
       {/* 2. DECK OPTIONS SCREEN (ALL ANKI DECK OPTIONS) */}
       {mode === "options" && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-400">
-              DECK OPTIONS
-            </span>
+          <div className="flex justify-end items-center gap-2 mb-2">
             <button
-              onClick={() => setMode("deck_summary")}
+              onClick={handleResetOptions}
               className="px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none"
             >
-              BACK
+              RESET
+            </button>
+            <button
+              onClick={handleSaveOptions}
+              className="px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none"
+            >
+              SAVE
             </button>
           </div>
 
           <div className="space-y-5 max-h-[500px] overflow-y-auto pr-2">
             {/* 1. DAILY LIMITS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 DAILY LIMITS
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     NEW CARDS / DAY
                   </label>
                   <input
@@ -299,7 +303,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     MAXIMUM REVIEWS / DAY
                   </label>
                   <input
@@ -317,7 +321,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     NEW CARDS IGNORE REVIEW LIMIT
                   </span>
                   <button
@@ -335,7 +339,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     LIMITS START FROM TOP
                   </span>
                   <button
@@ -356,13 +360,13 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 2. NEW CARDS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 NEW CARDS
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    LEARNING STEPS (E.G. 1m 10m)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    LEARNING STEPS
                   </label>
                   <input
                     type="text"
@@ -378,8 +382,8 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    GRADUATING INTERVAL (DAYS)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    GRADUATING INTERVAL
                   </label>
                   <input
                     type="number"
@@ -396,8 +400,8 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    EASY INTERVAL (DAYS)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    EASY INTERVAL
                   </label>
                   <input
                     type="number"
@@ -414,7 +418,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     INSERTION ORDER
                   </label>
                   <div className="flex gap-2">
@@ -422,16 +426,16 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, insertionOrder: "oldest" }))}
                       className={`flex-1 py-1.5 font-mono text-xs uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.insertionOrder === "oldest" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.insertionOrder === "oldest" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
-                      SEQUENTIAL (OLDEST FIRST)
+                      SEQUENTIAL
                     </button>
                     <button
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, insertionOrder: "random" }))}
                       className={`flex-1 py-1.5 font-mono text-xs uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.insertionOrder === "random" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.insertionOrder === "random" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       RANDOM
@@ -443,13 +447,13 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 3. LAPSES */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 LAPSES
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    RELEARNING STEPS (E.G. 10m)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    RELEARNING STEPS
                   </label>
                   <input
                     type="text"
@@ -465,8 +469,8 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    MINIMUM INTERVAL (DAYS)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    MINIMUM INTERVAL
                   </label>
                   <input
                     type="number"
@@ -483,7 +487,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     LEECH THRESHOLD
                   </label>
                   <input
@@ -501,7 +505,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     LEECH ACTION
                   </label>
                   <div className="flex gap-2">
@@ -509,7 +513,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, leechAction: "tag" }))}
                       className={`flex-1 py-1.5 font-mono text-xs uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.leechAction === "tag" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.leechAction === "tag" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       TAG ONLY
@@ -518,7 +522,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, leechAction: "suspend" }))}
                       className={`flex-1 py-1.5 font-mono text-xs uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.leechAction === "suspend" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.leechAction === "suspend" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       SUSPEND
@@ -530,12 +534,12 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 4. DISPLAY ORDER */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 DISPLAY ORDER
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     NEW / REVIEW ORDER
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -543,7 +547,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, newReviewOrder: "mix" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.newReviewOrder === "mix" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.newReviewOrder === "mix" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       MIX
@@ -552,7 +556,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, newReviewOrder: "new_first" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.newReviewOrder === "new_first" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.newReviewOrder === "new_first" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       NEW FIRST
@@ -561,7 +565,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, newReviewOrder: "reviews_first" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.newReviewOrder === "reviews_first" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.newReviewOrder === "reviews_first" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       REVIEWS FIRST
@@ -570,7 +574,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     REVIEW SORT ORDER
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -578,7 +582,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, reviewSortOrder: "due_then_random" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.reviewSortOrder === "due_then_random" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.reviewSortOrder === "due_then_random" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       DUE THEN RANDOM
@@ -587,7 +591,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, reviewSortOrder: "due_date" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.reviewSortOrder === "due_date" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.reviewSortOrder === "due_date" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       DUE DATE
@@ -596,7 +600,7 @@ export const ReviewPanel: React.FC = () => {
                       type="button"
                       onClick={() => setOptionsForm((prev) => ({ ...prev, reviewSortOrder: "random" }))}
                       className={`py-1.5 font-mono text-[11px] uppercase font-bold rounded border-none outline-none ${
-                        optionsForm.reviewSortOrder === "random" ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-400"
+                        optionsForm.reviewSortOrder === "random" ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-400"
                       }`}
                     >
                       RANDOM
@@ -608,12 +612,12 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 5. FSRS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 FSRS
               </span>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     ENABLE FSRS
                   </span>
                   <button
@@ -628,8 +632,8 @@ export const ReviewPanel: React.FC = () => {
                 {optionsForm.fsrsEnabled && (
                   <>
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                        DESIRED RETENTION (0.70 - 0.99)
+                      <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                        DESIRED RETENTION
                       </label>
                       <input
                         type="number"
@@ -648,8 +652,8 @@ export const ReviewPanel: React.FC = () => {
                     </div>
 
                     <div className="flex flex-col gap-1">
-                      <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                        FSRS PARAMETERS (19 WEIGHTS COMMA SEPARATED)
+                      <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                        FSRS PARAMETERS
                       </label>
                       <textarea
                         rows={3}
@@ -665,12 +669,12 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 6. BURYING */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 BURYING
               </span>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     BURY NEW SIBLINGS
                   </span>
                   <button
@@ -683,7 +687,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     BURY REVIEW SIBLINGS
                   </span>
                   <button
@@ -696,7 +700,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     BURY INTERDAY LEARNING SIBLINGS
                   </span>
                   <button
@@ -717,12 +721,12 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 7. AUDIO */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 AUDIO
               </span>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     DON'T PLAY AUDIO AUTOMATICALLY
                   </span>
                   <button
@@ -735,7 +739,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     SKIP QUESTION WHEN REPLAYING ANSWER
                   </span>
                   <button
@@ -756,12 +760,12 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 8. TIMERS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 TIMERS
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     MAXIMUM ANSWER SECONDS
                   </label>
                   <input
@@ -779,7 +783,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     SHOW ON-SCREEN TIMER
                   </span>
                   <button
@@ -795,13 +799,13 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 9. EASY DAYS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 EASY DAYS
               </span>
               <div className="grid grid-cols-1 gap-2">
                 {(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as (keyof EasyDaysConfig)[]).map((day) => (
                   <div key={day} className="flex items-center justify-between">
-                    <span className="text-[11px] font-mono text-zinc-400 uppercase">{day}</span>
+                    <span className="text-sm font-sans font-semibold text-zinc-400 uppercase">{day}</span>
                     <div className="flex gap-1">
                       {(["normal", "reduced", "minimum"] as const).map((level) => (
                         <button
@@ -814,7 +818,7 @@ export const ReviewPanel: React.FC = () => {
                             }))
                           }
                           className={`px-2 py-1 font-mono text-[10px] uppercase font-bold rounded border-none outline-none ${
-                            optionsForm.easyDays[day] === level ? "bg-zinc-700 text-white" : "bg-zinc-900 text-zinc-500"
+                            optionsForm.easyDays[day] === level ? "bg-zinc-800 text-white" : "bg-zinc-900 text-zinc-500"
                           }`}
                         >
                           {level}
@@ -828,13 +832,13 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 10. ADVANCED */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
+              <span className="text-sm font-sans font-semibold text-zinc-300 uppercase tracking-wider block">
                 ADVANCED
               </span>
               <div className="space-y-2">
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
-                    MAXIMUM INTERVAL (DAYS)
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
+                    MAXIMUM INTERVAL
                   </label>
                   <input
                     type="number"
@@ -851,7 +855,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     STARTING EASE
                   </label>
                   <input
@@ -870,7 +874,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     EASY BONUS
                   </label>
                   <input
@@ -888,7 +892,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     INTERVAL MODIFIER
                   </label>
                   <input
@@ -906,7 +910,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     HARD INTERVAL
                   </label>
                   <input
@@ -924,7 +928,7 @@ export const ReviewPanel: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[11px] font-mono text-zinc-400 uppercase">
+                  <label className="text-sm font-sans font-semibold text-zinc-400 uppercase">
                     NEW INTERVAL
                   </label>
                   <input
@@ -942,21 +946,6 @@ export const ReviewPanel: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              onClick={handleResetOptions}
-              className="px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none"
-            >
-              RESET DEFAULTS
-            </button>
-            <button
-              onClick={handleSaveOptions}
-              className="px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none"
-            >
-              SAVE OPTIONS
-            </button>
           </div>
         </div>
       )}

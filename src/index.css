@@ -1,0 +1,425 @@
+@import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Klee One", "YuKyokasho", "游教科書体", "Sawarabi Mincho", Georgia, cambria, "Times New Roman", Times, serif;
+}
+
+/* Custom font for Jisho-like Japanese text representation */
+.font-jisho {
+  font-family: "Helvetica Neue", Helvetica, Arial, "Source Han Sans Japanese", "Noto Sans Japanese", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", Meiryo, "メイリオ", "Noto Sans JP", sans-serif !important;
+}
+
+/* Material 3 Bold Icons styling */
+.material-symbols-rounded {
+  font-family: 'Material Symbols Rounded', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px !important;
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
+  flex-shrink: 0;
+}
+
+/* Beautiful robust text stroke/outline for subtitles to be read cleanly without a background banner */
+.sub-outline-text {
+  color: #ffffff !important;
+}
+
+.sub-outline-text-highlighted {
+  color: #fca5a5 !important; /* pale red (red-300) */
+}
+
+/* Hide scrollbars globally */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* Prevent scrollbar flicker and layout shifting in fullscreen */
+html:has(:fullscreen),
+body:has(:fullscreen),
+html.fullscreen-active,
+body.fullscreen-active {
+  overflow: hidden !important;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  height: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix fullscreen white stripes and ensure true solid black background */
+html, body, #root, #app-container {
+  background-color: #000000 !important;
+  background: #000000 !important;
+  color-scheme: dark;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Deep full-screen container & backdrop reset to target all rendering engines */
+:fullscreen, 
+::backdrop,
+:fullscreen::backdrop,
+video::backdrop,
+div::backdrop,
+iframe::backdrop,
+::-webkit-backdrop,
+::-moz-backdrop,
+::-ms-backdrop,
+:-webkit-full-screen,
+:-webkit-full-screen-backdrop,
+:-moz-full-screen,
+:-moz-full-screen-backdrop,
+:-ms-fullscreen,
+:-ms-fullscreen-backdrop {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  outline: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  --tw-ring-offset-shadow: 0 0 #0000 !important;
+  --tw-ring-shadow: 0 0 #0000 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  clip-path: none !important;
+}
+
+/* Global focus styling reset to prevent browser outlines */
+*:focus, *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Ensure the fullscreen container behaves nicely and prevents subpixel rendering gaps */
+div:fullscreen,
+div:-webkit-full-screen,
+div:-moz-full-screen,
+div:-ms-fullscreen {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #000000 !important;
+  background: #000000 !important;
+  overflow: hidden !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+}
+
+video {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-width: 0 !important;
+  background-color: #000000 !important;
+  background: #000000 !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+video:focus, video:active, video:focus-visible {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Hide range input slider thumb (ball) completely */
+.no-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.no-thumb::-moz-range-thumb {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Custom range slider styling without any native outlines or borders */
+.site-bg-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100lvh;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  z-index: 30;
+  transition: opacity 300ms ease;
+  transform: translateZ(0);
+}
+
+input[type="range"].custom-range {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 9999px;
+}
+
+input[type="range"].custom-range:focus,
+input[type="range"].custom-range:focus-visible,
+input[type="range"].custom-range:active {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+input[type="range"].custom-range::-webkit-slider-runnable-track {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  height: 6px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+input[type="range"].custom-range::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d4d4d8;
+  margin-top: -6px;
+  cursor: pointer;
+}
+
+input[type="range"].custom-range::-moz-range-track {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  height: 6px;
+  border-radius: 9999px;
+  background: transparent;
+}
+
+input[type="range"].custom-range::-moz-range-thumb {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #d4d4d8;
+  cursor: pointer;
+}
+
+/* Text opacity control - affects text elements, icons, buttons, and progress elements without affecting background cards or container boxes */
+#screen-content p,
+#screen-content span,
+#screen-content button,
+#screen-content h1,
+#screen-content h2,
+#screen-content h3,
+#screen-content h4,
+#screen-content h5,
+#screen-content h6,
+#screen-content label,
+#screen-content a,
+#screen-content li,
+#screen-content td,
+#screen-content th,
+#screen-content code,
+#screen-content strong,
+#screen-content b,
+#screen-content i,
+#screen-content em,
+#screen-content small,
+#screen-content sub,
+#screen-content sup,
+#screen-content figcaption,
+#screen-content blockquote,
+#screen-content dt,
+#screen-content dd,
+#screen-content svg,
+#screen-content input,
+#screen-content textarea,
+#screen-content select,
+#screen-content .episode-progress-bar-fill,
+#screen-content .tracking-progress-bar-fill,
+#screen-content .weekly-graph-pillar,
+#screen-content input::placeholder,
+#screen-content textarea::placeholder {
+  opacity: max(0.35, var(--screen-text-opacity, 1));
+  transition: opacity 200ms ease;
+}
+
+/* FULLSCREEN MODE EXEMPTION: None of the text or progress elements in fullscreen mode should be affected by text opacity */
+:fullscreen #screen-content p,
+:fullscreen #screen-content span,
+:fullscreen #screen-content button,
+:fullscreen #screen-content h1,
+:fullscreen #screen-content h2,
+:fullscreen #screen-content h3,
+:fullscreen #screen-content h4,
+:fullscreen #screen-content h5,
+:fullscreen #screen-content h6,
+:fullscreen #screen-content label,
+:fullscreen #screen-content a,
+:fullscreen #screen-content li,
+:fullscreen #screen-content td,
+:fullscreen #screen-content th,
+:fullscreen #screen-content code,
+:fullscreen #screen-content strong,
+:fullscreen #screen-content b,
+:fullscreen #screen-content i,
+:fullscreen #screen-content em,
+:fullscreen #screen-content small,
+:fullscreen #screen-content sub,
+:fullscreen #screen-content sup,
+:fullscreen #screen-content figcaption,
+:fullscreen #screen-content blockquote,
+:fullscreen #screen-content dt,
+:fullscreen #screen-content dd,
+:fullscreen #screen-content svg,
+:fullscreen #screen-content input,
+:fullscreen #screen-content textarea,
+:fullscreen #screen-content select,
+:fullscreen #screen-content .episode-progress-bar-fill,
+#screen-content :fullscreen p,
+#screen-content :fullscreen span,
+#screen-content :fullscreen button,
+#screen-content :fullscreen h1,
+#screen-content :fullscreen h2,
+#screen-content :fullscreen h3,
+#screen-content :fullscreen h4,
+#screen-content :fullscreen h5,
+#screen-content :fullscreen h6,
+#screen-content :fullscreen label,
+#screen-content :fullscreen a,
+#screen-content :fullscreen li,
+#screen-content :fullscreen td,
+#screen-content :fullscreen th,
+#screen-content :fullscreen code,
+#screen-content :fullscreen strong,
+#screen-content :fullscreen b,
+#screen-content :fullscreen i,
+#screen-content :fullscreen em,
+#screen-content :fullscreen small,
+#screen-content :fullscreen sub,
+#screen-content :fullscreen sup,
+#screen-content :fullscreen figcaption,
+#screen-content :fullscreen blockquote,
+#screen-content :fullscreen dt,
+#screen-content :fullscreen dd,
+#screen-content :fullscreen svg,
+#screen-content :fullscreen input,
+#screen-content :fullscreen textarea,
+#screen-content :fullscreen select,
+#screen-content :fullscreen .episode-progress-bar-fill,
+.fullscreen-active #screen-content p,
+.fullscreen-active #screen-content span,
+.fullscreen-active #screen-content button,
+.fullscreen-active #screen-content h1,
+.fullscreen-active #screen-content h2,
+.fullscreen-active #screen-content h3,
+.fullscreen-active #screen-content h4,
+.fullscreen-active #screen-content h5,
+.fullscreen-active #screen-content h6,
+.fullscreen-active #screen-content label,
+.fullscreen-active #screen-content a,
+.fullscreen-active #screen-content li,
+.fullscreen-active #screen-content td,
+.fullscreen-active #screen-content th,
+.fullscreen-active #screen-content code,
+.fullscreen-active #screen-content strong,
+.fullscreen-active #screen-content b,
+.fullscreen-active #screen-content i,
+.fullscreen-active #screen-content em,
+.fullscreen-active #screen-content small,
+.fullscreen-active #screen-content sub,
+.fullscreen-active #screen-content sup,
+.fullscreen-active #screen-content figcaption,
+.fullscreen-active #screen-content blockquote,
+.fullscreen-active #screen-content dt,
+.fullscreen-active #screen-content dd,
+.fullscreen-active #screen-content svg,
+.fullscreen-active #screen-content input,
+.fullscreen-active #screen-content textarea,
+.fullscreen-active #screen-content select,
+.fullscreen-active #screen-content .episode-progress-bar-fill,
+.subminer-fullscreen-active #screen-content p,
+.subminer-fullscreen-active #screen-content span,
+.subminer-fullscreen-active #screen-content button,
+.subminer-fullscreen-active #screen-content h1,
+.subminer-fullscreen-active #screen-content h2,
+.subminer-fullscreen-active #screen-content h3,
+.subminer-fullscreen-active #screen-content h4,
+.subminer-fullscreen-active #screen-content h5,
+.subminer-fullscreen-active #screen-content h6,
+.subminer-fullscreen-active #screen-content label,
+.subminer-fullscreen-active #screen-content a,
+.subminer-fullscreen-active #screen-content li,
+.subminer-fullscreen-active #screen-content td,
+.subminer-fullscreen-active #screen-content th,
+.subminer-fullscreen-active #screen-content code,
+.subminer-fullscreen-active #screen-content strong,
+.subminer-fullscreen-active #screen-content b,
+.subminer-fullscreen-active #screen-content i,
+.subminer-fullscreen-active #screen-content em,
+.subminer-fullscreen-active #screen-content small,
+.subminer-fullscreen-active #screen-content sub,
+.subminer-fullscreen-active #screen-content sup,
+.subminer-fullscreen-active #screen-content figcaption,
+.subminer-fullscreen-active #screen-content blockquote,
+.subminer-fullscreen-active #screen-content dt,
+.subminer-fullscreen-active #screen-content dd,
+.subminer-fullscreen-active #screen-content svg,
+.subminer-fullscreen-active #screen-content input,
+.subminer-fullscreen-active #screen-content textarea,
+.subminer-fullscreen-active #screen-content select,
+.subminer-fullscreen-active #screen-content .episode-progress-bar-fill {
+  opacity: 1 !important;
+}
+
+

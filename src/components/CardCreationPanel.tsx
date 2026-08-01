@@ -535,7 +535,7 @@ export const CardCreationPanel: React.FC<CardCreationPanelProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  <span className="text-xs font-mono text-zinc-400 px-1">
+                  <span className="text-xs font-mono font-bold text-zinc-500 px-1">
                     {formatCardDueDate(card.due)}
                   </span>
 

@@ -240,7 +240,7 @@ export const ReviewPanel: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <span className="text-xs font-mono font-bold text-zinc-400 uppercase">
+              <span className="text-xs font-mono font-bold text-zinc-500 uppercase">
                 {dueCards.length} DUE
               </span>
 

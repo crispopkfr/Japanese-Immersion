@@ -374,16 +374,6 @@ export const CardCreationPanel: React.FC<CardCreationPanelProps> = ({
           )}
 
           <button
-            onClick={() => setIsConfiguringBot((prev) => !prev)}
-            className={`px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer font-bold font-mono text-xs border-none outline-none shrink-0 ${
-              isConfiguringBot ? "text-white" : "text-zinc-400 hover:text-white"
-            }`}
-            title="Configure Telegram Bot Token & Chat ID"
-          >
-            <span>CONFIGURE BOT</span>
-          </button>
-
-          <button
             onClick={handleOpenNewCardForm}
             className="p-2 bg-zinc-900/50 hover:bg-zinc-700/30 border-none outline-none text-zinc-400 hover:text-white rounded-full transition-all flex items-center justify-center shrink-0 cursor-pointer h-9 w-9"
             title="Create New Card"

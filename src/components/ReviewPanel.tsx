@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { MangaDB } from "../db";
 import { AnkiCard } from "../ankiUtils";
 import { resolveMediaSrc } from "../mediaStore";
+import { parseFurigana } from "../utils";
 import {
   SrsSettings,
   getSrsSettings,
@@ -13,6 +14,41 @@ import {
   formatIntervalLabel,
   EasyDaysConfig
 } from "../ankiSrs";
+
+function RubyFuriganaText({
+  text,
+  className = "",
+  rtClassName = "text-[0.45em] text-zinc-400 font-sans font-normal tracking-wide select-none",
+}: {
+  text: string;
+  className?: string;
+  rtClassName?: string;
+}) {
+  if (!text) return null;
+  const segments = parseFurigana(text);
+
+  return (
+    <span className={`${className} inline-flex flex-wrap items-baseline justify-center max-w-full`}>
+      {segments.map((seg) => {
+        if (seg.type === "furigana" && seg.kana) {
+          return (
+            <ruby key={seg.id} className="ruby-position-over leading-none px-[1px]">
+              {seg.text}
+              <rt className={rtClassName}>
+                {seg.kana}
+              </rt>
+            </ruby>
+          );
+        }
+        return (
+          <span key={seg.id} className="leading-none">
+            {seg.text}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
 
 export const ReviewPanel: React.FC = () => {
   const [cards, setCards] = useState<AnkiCard[]>([]);
@@ -186,15 +222,6 @@ export const ReviewPanel: React.FC = () => {
       {/* 1. DECK SUMMARY SCREEN */}
       {mode === "deck_summary" && (
         <div className="space-y-4">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-400">
-              REVIEW
-            </span>
-            <span className="text-xs font-mono font-bold text-zinc-500 uppercase">
-              ALGORITHM: {srsSettings.fsrsEnabled ? "FSRS" : "SM-2"}
-            </span>
-          </div>
-
           {/* Deck Box matching the deck / card screen style */}
           <div
             onClick={() => {
@@ -208,10 +235,7 @@ export const ReviewPanel: React.FC = () => {
           >
             <div className="flex flex-col gap-1 min-w-0">
               <p className="text-base font-sans font-semibold text-zinc-200">
-                Immersion Deck
-              </p>
-              <p className="text-xs font-mono text-zinc-500">
-                {cards.filter((c) => !c.hidden).length} Total Cards
+                日本語
               </p>
             </div>
 
@@ -252,7 +276,7 @@ export const ReviewPanel: React.FC = () => {
           <div className="space-y-5 max-h-[500px] overflow-y-auto pr-2">
             {/* 1. DAILY LIMITS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 DAILY LIMITS
               </span>
               <div className="space-y-2">
@@ -304,7 +328,7 @@ export const ReviewPanel: React.FC = () => {
                         newCardsIgnoreReviewLimit: !prev.newCardsIgnoreReviewLimit
                       }))
                     }
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.newCardsIgnoreReviewLimit ? "ON" : "OFF"}
                   </button>
@@ -322,7 +346,7 @@ export const ReviewPanel: React.FC = () => {
                         limitsStartFromTop: !prev.limitsStartFromTop
                       }))
                     }
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.limitsStartFromTop ? "ON" : "OFF"}
                   </button>
@@ -332,7 +356,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 2. NEW CARDS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 NEW CARDS
               </span>
               <div className="space-y-2">
@@ -419,7 +443,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 3. LAPSES */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 LAPSES
               </span>
               <div className="space-y-2">
@@ -506,7 +530,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 4. DISPLAY ORDER */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 DISPLAY ORDER
               </span>
               <div className="space-y-2">
@@ -584,7 +608,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 5. FSRS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 FSRS
               </span>
               <div className="space-y-2">
@@ -595,7 +619,7 @@ export const ReviewPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setOptionsForm((prev) => ({ ...prev, fsrsEnabled: !prev.fsrsEnabled }))}
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.fsrsEnabled ? "ON" : "OFF"}
                   </button>
@@ -641,7 +665,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 6. BURYING */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 BURYING
               </span>
               <div className="space-y-2">
@@ -652,7 +676,7 @@ export const ReviewPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setOptionsForm((prev) => ({ ...prev, buryNewSiblings: !prev.buryNewSiblings }))}
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.buryNewSiblings ? "ON" : "OFF"}
                   </button>
@@ -665,7 +689,7 @@ export const ReviewPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setOptionsForm((prev) => ({ ...prev, buryReviewSiblings: !prev.buryReviewSiblings }))}
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.buryReviewSiblings ? "ON" : "OFF"}
                   </button>
@@ -683,7 +707,7 @@ export const ReviewPanel: React.FC = () => {
                         buryInterdayLearningSiblings: !prev.buryInterdayLearningSiblings
                       }))
                     }
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.buryInterdayLearningSiblings ? "ON" : "OFF"}
                   </button>
@@ -693,7 +717,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 7. AUDIO */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 AUDIO
               </span>
               <div className="space-y-2">
@@ -704,7 +728,7 @@ export const ReviewPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setOptionsForm((prev) => ({ ...prev, dontPlayAudioAuto: !prev.dontPlayAudioAuto }))}
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.dontPlayAudioAuto ? "ON" : "OFF"}
                   </button>
@@ -722,7 +746,7 @@ export const ReviewPanel: React.FC = () => {
                         skipQuestionWhenReplayingAnswer: !prev.skipQuestionWhenReplayingAnswer
                       }))
                     }
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.skipQuestionWhenReplayingAnswer ? "ON" : "OFF"}
                   </button>
@@ -732,7 +756,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 8. TIMERS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 TIMERS
               </span>
               <div className="space-y-2">
@@ -761,7 +785,7 @@ export const ReviewPanel: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setOptionsForm((prev) => ({ ...prev, showOnScreenTimer: !prev.showOnScreenTimer }))}
-                    className="px-3 py-1 font-mono text-xs font-bold uppercase rounded cursor-pointer bg-zinc-900 text-zinc-300 border-none outline-none"
+                    className="text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none cursor-pointer hover:text-zinc-200 transition-colors"
                   >
                     {optionsForm.showOnScreenTimer ? "ON" : "OFF"}
                   </button>
@@ -771,7 +795,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 9. EASY DAYS */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 EASY DAYS
               </span>
               <div className="grid grid-cols-1 gap-2">
@@ -804,7 +828,7 @@ export const ReviewPanel: React.FC = () => {
 
             {/* 10. ADVANCED */}
             <div className="p-3.5 bg-zinc-900/50 rounded-md space-y-3">
-              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block border-b border-zinc-800 pb-1.5">
+              <span className="text-xs font-mono font-bold text-zinc-200 uppercase tracking-wider block">
                 ADVANCED
               </span>
               <div className="space-y-2">
@@ -968,125 +992,116 @@ export const ReviewPanel: React.FC = () => {
               {(() => {
                 const picSrc = resolveMediaSrc(currentCard.fields["Picture"]);
                 if (!picSrc) return null;
+                const sentenceAudioSrc = resolveMediaSrc(currentCard.fields["Sentence Audio"]);
+                const wordAudioSrc = resolveMediaSrc(currentCard.fields["Word Audio"]);
+                const audioToPlay = sentenceAudioSrc || wordAudioSrc;
+
                 return (
                   <img
                     src={picSrc}
                     alt="Card visual"
-                    className="max-h-48 rounded-lg object-contain"
+                    onClick={() => {
+                      if (audioToPlay) handlePlayAudio(audioToPlay);
+                    }}
+                    className={`w-72 h-48 aspect-[3/2] object-cover rounded-lg ${
+                      audioToPlay ? "cursor-pointer hover:opacity-90 active:scale-[0.99] transition-all" : ""
+                    }`}
+                    title={audioToPlay ? "Click image to replay audio" : undefined}
                   />
                 );
               })()}
 
-              {/* Front Content */}
-              <div className="space-y-2 w-full max-w-xl">
-                <p className="text-3xl font-sans font-bold text-white tracking-wide">
-                  {currentCard.fields["Word"] || "Untitled Card"}
-                </p>
+              {/* Card Content (Word / Sentence / Furigana / Meanings) */}
+              <div className="space-y-3 w-full max-w-xl">
+                {!showAnswer ? (
+                  <>
+                    <p className="text-3xl font-sans font-bold text-white tracking-wide">
+                      {currentCard.fields["Word"] || "Untitled Card"}
+                    </p>
 
-                {currentCard.fields["Sentence"] && (
-                  <p className="text-base font-sans text-zinc-300 leading-relaxed">
-                    {currentCard.fields["Sentence"]}
-                  </p>
-                )}
-
-                {/* Audio buttons text-only */}
-                {(() => {
-                  const wordAudioSrc = resolveMediaSrc(currentCard.fields["Word Audio"]);
-                  const sentenceAudioSrc = resolveMediaSrc(currentCard.fields["Sentence Audio"]);
-                  if (!wordAudioSrc && !sentenceAudioSrc) return null;
-
-                  return (
-                    <div className="flex justify-center gap-2 pt-1">
-                      {wordAudioSrc && (
-                        <button
-                          type="button"
-                          onClick={() => handlePlayAudio(wordAudioSrc)}
-                          className="px-3 py-1 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-[11px] border-none outline-none"
-                        >
-                          PLAY WORD AUDIO
-                        </button>
-                      )}
-                      {sentenceAudioSrc && (
-                        <button
-                          type="button"
-                          onClick={() => handlePlayAudio(sentenceAudioSrc)}
-                          className="px-3 py-1 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-[11px] border-none outline-none"
-                        >
-                          PLAY SENTENCE AUDIO
-                        </button>
-                      )}
+                    {currentCard.fields["Sentence"] && (
+                      <p className="text-base font-sans text-zinc-300 leading-relaxed">
+                        {currentCard.fields["Sentence"]}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Word Furigana replacing Word */}
+                    <div className="text-3xl font-sans font-bold text-white tracking-wide pt-2">
+                      <RubyFuriganaText
+                        text={currentCard.fields["Word Furigana"] || currentCard.fields["Word"] || "Untitled Card"}
+                      />
                     </div>
-                  );
-                })()}
+
+                    {/* Meaning below Word Furigana */}
+                    {(currentCard.fields["Word Meaning"] || currentCard.fields["Meaning"]) && (
+                      <p className="text-base font-sans text-zinc-200">
+                        {currentCard.fields["Word Meaning"] || currentCard.fields["Meaning"]}
+                      </p>
+                    )}
+
+                    {/* Sentence Furigana replacing Sentence */}
+                    {(currentCard.fields["Sentence Furigana"] || currentCard.fields["Sentence"]) && (
+                      <div className="text-base font-sans text-zinc-300 leading-relaxed pt-2">
+                        <RubyFuriganaText
+                          text={currentCard.fields["Sentence Furigana"] || currentCard.fields["Sentence"] || ""}
+                          rtClassName="text-[0.55em] text-zinc-400 font-sans font-normal tracking-wide select-none"
+                        />
+                      </div>
+                    )}
+
+                    {/* Sentence Meaning below Sentence Furigana */}
+                    {currentCard.fields["Sentence Meaning"] && (
+                      <p className="text-sm font-sans text-zinc-400">
+                        {currentCard.fields["Sentence Meaning"]}
+                      </p>
+                    )}
+
+                    {/* Notes */}
+                    {currentCard.fields["Notes"] && (
+                      <p className="text-xs font-mono text-zinc-400 italic pt-1">
+                        Note: {currentCard.fields["Notes"]}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
 
-              {/* Reveal / Answer section */}
+              {/* Reveal / Answer Action section */}
               {!showAnswer ? (
                 <div className="pt-4 w-full max-w-xs">
                   <button
                     onClick={() => {
                       setShowAnswer(true);
-                      if (!optionsForm.dontPlayAudioAuto) {
-                        const wAudio = resolveMediaSrc(currentCard.fields["Word Audio"]);
-                        if (wAudio) handlePlayAudio(wAudio);
-                      }
+                      const sentenceAudioSrc = resolveMediaSrc(currentCard.fields["Sentence Audio"]);
+                      const wordAudioSrc = resolveMediaSrc(currentCard.fields["Word Audio"]);
+                      const audioToPlay = sentenceAudioSrc || wordAudioSrc;
+                      if (audioToPlay) handlePlayAudio(audioToPlay);
                     }}
-                    className="w-full p-3 bg-zinc-800 hover:bg-zinc-700 text-white font-mono font-bold text-xs uppercase rounded-md transition-all cursor-pointer border-none outline-none"
+                    className="w-full px-4 py-2 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none"
                   >
                     SHOW ANSWER
                   </button>
                 </div>
               ) : (
-                <div className="w-full max-w-xl space-y-4 pt-4 border-t border-zinc-800">
-                  {/* Word Furigana / Meaning */}
-                  {currentCard.fields["Word Furigana"] && (
-                    <p className="text-lg font-sans text-emerald-400 font-semibold">
-                      {currentCard.fields["Word Furigana"]}
-                    </p>
-                  )}
-
-                  {currentCard.fields["Word Meaning"] && (
-                    <p className="text-sm font-sans text-zinc-200">
-                      {currentCard.fields["Word Meaning"]}
-                    </p>
-                  )}
-
-                  {/* Sentence Furigana / Meaning */}
-                  {currentCard.fields["Sentence Furigana"] && (
-                    <p className="text-sm font-sans text-zinc-300">
-                      {currentCard.fields["Sentence Furigana"]}
-                    </p>
-                  )}
-
-                  {currentCard.fields["Sentence Meaning"] && (
-                    <p className="text-xs font-sans text-zinc-400">
-                      {currentCard.fields["Sentence Meaning"]}
-                    </p>
-                  )}
-
-                  {/* Notes */}
-                  {currentCard.fields["Notes"] && (
-                    <p className="text-xs font-mono text-zinc-400 italic">
-                      Note: {currentCard.fields["Notes"]}
-                    </p>
-                  )}
-
+                <div className="w-full max-w-xl pt-4">
                   {/* ONLY AGAIN and GOOD buttons (Strictly NO icons!) */}
-                  <div className="flex justify-center gap-4 pt-4">
+                  <div className="flex justify-center gap-4">
                     <button
                       onClick={() => handleRateCard("again")}
-                      className="px-6 py-2.5 bg-zinc-900/80 hover:bg-zinc-700 text-zinc-200 hover:text-white rounded-md transition-all flex flex-col items-center gap-0.5 cursor-pointer border-none outline-none"
+                      className="px-6 py-2 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none flex flex-col items-center gap-0.5"
                     >
                       <span className="font-mono font-bold text-xs uppercase">AGAIN</span>
-                      <span className="font-mono text-[10px] text-zinc-400">{againEstLabel}</span>
+                      <span className="font-mono text-[10px] text-zinc-500">{againEstLabel}</span>
                     </button>
 
                     <button
                       onClick={() => handleRateCard("good")}
-                      className="px-6 py-2.5 bg-zinc-900/80 hover:bg-zinc-700 text-zinc-200 hover:text-white rounded-md transition-all flex flex-col items-center gap-0.5 cursor-pointer border-none outline-none"
+                      className="px-6 py-2 text-center uppercase transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 font-bold font-mono text-xs border-none outline-none flex flex-col items-center gap-0.5"
                     >
                       <span className="font-mono font-bold text-xs uppercase">GOOD</span>
-                      <span className="font-mono text-[10px] text-zinc-400">{goodEstLabel}</span>
+                      <span className="font-mono text-[10px] text-zinc-500">{goodEstLabel}</span>
                     </button>
                   </div>
                 </div>

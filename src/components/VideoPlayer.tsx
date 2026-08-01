@@ -3666,7 +3666,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                   showCardCreationList ? "text-white" : "text-zinc-400 hover:text-white"
                 }`}
               >
-                <span>DECK</span>
+                <span>BROWSER</span>
               </button>
               <button
                 onClick={toggleReviewPanel}

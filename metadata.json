@@ -1,6 +1,6 @@
 {
   "name": "Manga Dialogue Editor",
-  "description": "Import .CBZ manga chapters, create and position dialogue entries manually, write Japanese text and notes, toggle notes visibility, manage your chapter library, and search across all translated dialogues.",
+  "description": "Japanese language media immersion hub with manga CBZ reader, video player with subtitle sync, Yomitan dictionary lookup, Anki card creation, pitch accent support, and watch statistics tracking.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

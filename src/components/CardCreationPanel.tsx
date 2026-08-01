@@ -15,6 +15,21 @@ interface CardCreationPanelProps {
   initialSentence?: string;
 }
 
+const formatCardDueDate = (dueMs?: number) => {
+  if (!dueMs) return "New";
+  const date = new Date(dueMs);
+  if (isNaN(date.getTime())) return "New";
+  const now = new Date();
+  if (date.toDateString() === now.toDateString()) {
+    return "Today";
+  }
+  return date.toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: date.getFullYear() !== now.getFullYear() ? "numeric" : undefined,
+  });
+};
+
 export const CardCreationPanel: React.FC<CardCreationPanelProps> = ({
   initialWord = "",
   initialSentence = "",
@@ -530,6 +545,10 @@ export const CardCreationPanel: React.FC<CardCreationPanelProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
+                  <span className="text-xs font-mono text-zinc-400 px-1">
+                    {formatCardDueDate(card.due)}
+                  </span>
+
                   <button
                     onClick={() => handleToggleHideCard(card.id)}
                     className="p-1.5 text-center transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 flex items-center justify-center border-none outline-none"

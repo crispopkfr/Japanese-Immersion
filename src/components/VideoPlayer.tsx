@@ -26,6 +26,7 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { importDictionary } from "../utils";
 import { CardCreationPanel } from "./CardCreationPanel";
+import { ReviewPanel } from "./ReviewPanel";
 import { StatsPanel, WatchStatsData, getTodayDateString } from "./StatsPanel";
 import { AnimeTrackerPanel } from "./AnimeTrackerPanel";
 import { SettingsPanel } from "./SettingsPanel";
@@ -941,6 +942,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
   const [showSubtitlesList, setShowSubtitlesList] = useState(false);
   const [showDictionariesList, setShowDictionariesList] = useState(false);
   const [showCardCreationList, setShowCardCreationList] = useState(false);
+  const [showReviewPanel, setShowReviewPanel] = useState(false);
   const [showStatsPanel, setShowStatsPanel] = useState(false);
   const [showTrackPanel, setShowTrackPanel] = useState(false);
   const [showSettingsPanel, setShowSettingsPanel] = useState(false);
@@ -1149,6 +1151,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowSubtitlesList((prev) => !prev);
     setShowDictionariesList(false);
     setShowCardCreationList(false);
+    setShowReviewPanel(false);
     setShowStatsPanel(false);
     setShowTrackPanel(false);
     setShowSettingsPanel(false);
@@ -1159,6 +1162,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowDictionariesList((prev) => !prev);
     setShowSubtitlesList(false);
     setShowCardCreationList(false);
+    setShowReviewPanel(false);
     setShowStatsPanel(false);
     setShowTrackPanel(false);
     setShowSettingsPanel(false);
@@ -1169,6 +1173,18 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowCardCreationList((prev) => !prev);
     setShowSubtitlesList(false);
     setShowDictionariesList(false);
+    setShowReviewPanel(false);
+    setShowStatsPanel(false);
+    setShowTrackPanel(false);
+    setShowSettingsPanel(false);
+    setShowDictPanel(false);
+  };
+
+  const toggleReviewPanel = () => {
+    setShowReviewPanel((prev) => !prev);
+    setShowSubtitlesList(false);
+    setShowDictionariesList(false);
+    setShowCardCreationList(false);
     setShowStatsPanel(false);
     setShowTrackPanel(false);
     setShowSettingsPanel(false);
@@ -1180,6 +1196,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowSubtitlesList(false);
     setShowDictionariesList(false);
     setShowCardCreationList(false);
+    setShowReviewPanel(false);
     setShowTrackPanel(false);
     setShowSettingsPanel(false);
     setShowDictPanel(false);
@@ -1190,6 +1207,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowSubtitlesList(false);
     setShowDictionariesList(false);
     setShowCardCreationList(false);
+    setShowReviewPanel(false);
     setShowStatsPanel(false);
     setShowSettingsPanel(false);
     setShowDictPanel(false);
@@ -1200,6 +1218,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowSubtitlesList(false);
     setShowDictionariesList(false);
     setShowCardCreationList(false);
+    setShowReviewPanel(false);
     setShowStatsPanel(false);
     setShowTrackPanel(false);
     setShowDictPanel(false);
@@ -3606,6 +3625,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     showSubtitlesList ||
     showDictionariesList ||
     showCardCreationList ||
+    showReviewPanel ||
     showStatsPanel ||
     showTrackPanel ||
     showSettingsPanel ||
@@ -3647,6 +3667,14 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                 }`}
               >
                 <span>DECK</span>
+              </button>
+              <button
+                onClick={toggleReviewPanel}
+                className={`px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer font-bold font-mono text-xs sm:text-sm ${
+                  showReviewPanel ? "text-white" : "text-zinc-400 hover:text-white"
+                }`}
+              >
+                <span>REVIEW</span>
               </button>
               <button
                 onClick={toggleStatsPanel}
@@ -4036,7 +4064,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                     >
                       <div className="flex items-center justify-between pb-4 mb-3 border-none outline-none shrink-0 gap-2">
                         <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-400">
-                          Lines of Subtitles {filteredSubtitles.length}
+                          LINES {filteredSubtitles.length}
                         </span>
                         <button
                           onClick={() => setShowFullscreenLines(false)}
@@ -4554,6 +4582,21 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                 )}
               </AnimatePresence>
 
+              {/* Review collapsible panel */}
+              <AnimatePresence>
+                {!isFullscreen && showReviewPanel && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="w-full bg-zinc-800 px-2 pb-4 pt-0 overflow-hidden border-none outline-none shadow-none"
+                  >
+                    <ReviewPanel />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Watch Stats collapsible panel */}
               <AnimatePresence>
                 {!isFullscreen && showStatsPanel && (
@@ -4615,7 +4658,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                       {/* Header section with static subtitles label */}
                       <div className="py-4 flex items-center justify-between select-none shrink-0 bg-zinc-800">
                         <span className="text-xs font-mono font-bold tracking-wider uppercase text-zinc-400">
-                          Lines of Subtitles {filteredSubtitles.length}
+                          LINES {filteredSubtitles.length}
                         </span>
                       </div>
 

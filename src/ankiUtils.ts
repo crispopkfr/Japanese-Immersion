@@ -20,6 +20,16 @@ export interface AnkiCard {
   fields: Record<string, string>;
   createdAt: number;
   hidden?: boolean;
+  due?: number;
+  ivl?: number;
+  factor?: number;
+  reps?: number;
+  lapses?: number;
+  state?: "new" | "learning" | "review" | "relearning";
+  stepIndex?: number;
+  stability?: number;
+  difficulty?: number;
+  lastReview?: number;
 }
 
 export const DEFAULT_CARD_TEMPLATE: AnkiTemplate = {

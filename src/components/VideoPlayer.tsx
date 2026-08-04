@@ -3225,6 +3225,14 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
       setIsPlaying(false);
     }
 
+    const isDifferentSelection = start !== lookupStartIndex || end !== lookupEndIndex || text !== selectedSubText;
+
+    if (showDictPanel && isDifferentSelection) {
+      setShowDictPanel(false);
+      const waitTime = isFullscreen ? 300 : 400;
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
+    }
+
     setIsSearchingDict(true);
     setShowDictPanel(true);
     setShowDictionariesList(false);
@@ -3241,6 +3249,16 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
 
   // Click on a specific character inside a subtitle line
   const handleCharClick = async (sentence: string, index: number) => {
+    if (
+      showDictPanel &&
+      selectedSubText === sentence &&
+      index >= lookupStartIndex &&
+      index < lookupEndIndex
+    ) {
+      closeLookup();
+      return;
+    }
+
     if (videoRef.current && isPlaying) {
       videoRef.current.pause();
       setIsPlaying(false);
@@ -3249,27 +3267,31 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setSelectedSubText(sentence);
 
     const clickedChar = sentence[index] || "";
-    const isEnglishChar = /[a-zA-Z0-9'\u2019\u2018\u00C0-\u024F]/.test(clickedChar);
+    const isEnglishChar = /[a-zA-Z0-9'\u00C0-\u024F]/.test(clickedChar);
 
     let startIdx = index;
     let endIdx = index + 1;
     let queryStr = "";
 
     if (isEnglishChar) {
-      while (startIdx > 0 && /[a-zA-Z0-9'\u2019\u2018\u00C0-\u024F]/.test(sentence[startIdx - 1])) {
+      while (startIdx > 0 && /[a-zA-Z0-9'\u00C0-\u024F]/.test(sentence[startIdx - 1])) {
         startIdx--;
       }
-      while (endIdx < sentence.length && /[a-zA-Z0-9'\u2019\u2018\u00C0-\u024F]/.test(sentence[endIdx])) {
+      while (endIdx < sentence.length && /[a-zA-Z0-9'\u00C0-\u024F]/.test(sentence[endIdx])) {
         endIdx++;
       }
-      queryStr = sentence.substring(startIdx, endIdx).replace(/^['\u2019\u2018\s-]+|['\u2019\u2018\s-]+$/g, "");
+      queryStr = sentence.substring(startIdx, endIdx).replace(/^['\s-]+|['\s-]+$/g, "");
     } else {
       queryStr = sentence.substring(index, index + 12);
     }
 
     setLookupStartIndex(startIdx);
-    if (isEnglishChar) {
-      setLookupEndIndex(endIdx);
+
+    const isDifferentSelection = startIdx !== lookupStartIndex || sentence !== selectedSubText;
+    if (showDictPanel && isDifferentSelection) {
+      setShowDictPanel(false);
+      const waitTime = isFullscreen ? 300 : 400;
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
     setIsSearchingDict(true);

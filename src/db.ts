@@ -55,7 +55,20 @@ export function deinflectEnglish(text: string): string[] {
     better: ["good", "well"], best: ["good", "well"],
     worse: ["bad"], worst: ["bad"],
     children: ["child"], men: ["man"], women: ["woman"],
-    mice: ["mouse"], teeth: ["tooth"], feet: ["foot"], geese: ["goose"], people: ["person"]
+    mice: ["mouse"], teeth: ["tooth"], feet: ["foot"], geese: ["goose"], people: ["person"],
+    "don't": ["do"], "doesn't": ["does"], "didn't": ["did"],
+    "won't": ["will"], "wouldn't": ["would"], "can't": ["can"],
+    "couldn't": ["could"], "shouldn't": ["should"], "isn't": ["is"],
+    "aren't": ["are"], "wasn't": ["was"], "weren't": ["were"],
+    "haven't": ["have"], "hasn't": ["has"], "hadn't": ["had"],
+    "it's": ["it"], "there's": ["there"], "that's": ["that"],
+    "what's": ["what"], "who's": ["who"], "he's": ["he"], "she's": ["she"],
+    "i'm": ["i"], "you're": ["you"], "they're": ["they"], "we're": ["we"],
+    "i've": ["i"], "you've": ["you"], "they've": ["they"], "we've": ["we"],
+    "i'll": ["i"], "you'll": ["you"], "he'll": ["he"], "she'll": ["she"],
+    "they'll": ["they"], "we'll": ["we"],
+    "i'd": ["i"], "you'd": ["you"], "he'd": ["he"], "she'd": ["she"],
+    "they'd": ["they"], "we'd": ["we"]
   };
 
   if (irregulars[lower]) {
@@ -118,72 +131,86 @@ export function deinflectEnglish(text: string): string[] {
   return Array.from(results);
 }
 
+const englishDictCache = new Map<string, any[]>();
+
 async function fetchFreeEnglishDictionary(query: string): Promise<any[]> {
-  const cleanWord = query.replace(/[^a-zA-Z0-9'-]/g, "").trim().toLowerCase();
-  if (!cleanWord || cleanWord.length < 2) return [];
+  const cleanWord = query.replace(/[^a-zA-Z0-9'\u2019-]/g, "").replace(/\u2019/g, "'").trim().toLowerCase();
+  if (!cleanWord || cleanWord.length < 1) return [];
+
+  if (englishDictCache.has(cleanWord)) {
+    return englishDictCache.get(cleanWord)!;
+  }
 
   const wordsToTry = Array.from(new Set([cleanWord, ...deinflectEnglish(cleanWord)]));
-  const results: any[] = [];
 
-  for (const targetWord of wordsToTry) {
-    if (results.length >= 3) break;
+  const fetchSingleWord = async (targetWord: string) => {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2500);
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
 
-      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(targetWord)}`, {
-        signal: controller.signal
-      });
+      const response = await fetch(
+        `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(targetWord)}`,
+        { signal: controller.signal }
+      );
       clearTimeout(timeoutId);
 
-      if (!response.ok) continue;
+      if (!response.ok) return [];
 
       const data = await response.json();
-      if (Array.isArray(data)) {
-        data.forEach((entry: any) => {
-          let phoneticText = entry.phonetic || "";
-          let audioUrl = "";
-          if (Array.isArray(entry.phonetics)) {
-            entry.phonetics.forEach((p: any) => {
-              if (!phoneticText && p.text) phoneticText = p.text;
-              if (!audioUrl && p.audio) audioUrl = p.audio;
-            });
-          }
+      if (!Array.isArray(data)) return [];
 
-          const glossaryList: string[] = [];
-          if (Array.isArray(entry.meanings)) {
-            entry.meanings.forEach((m: any) => {
-              const pos = m.partOfSpeech ? `(${m.partOfSpeech}) ` : "";
-              if (Array.isArray(m.definitions)) {
-                m.definitions.slice(0, 3).forEach((defObj: any) => {
-                  let str = `${pos}${defObj.definition || ""}`;
-                  if (defObj.example) {
-                    str += ` e.g. "${defObj.example}"`;
-                  }
-                  glossaryList.push(str);
-                });
-              }
-            });
-          }
+      const wordResults: any[] = [];
+      data.forEach((entry: any) => {
+        let phoneticText = entry.phonetic || "";
+        let audioUrl = "";
+        if (Array.isArray(entry.phonetics)) {
+          entry.phonetics.forEach((p: any) => {
+            if (!phoneticText && p.text) phoneticText = p.text;
+            if (!audioUrl && p.audio) audioUrl = p.audio;
+          });
+        }
 
-          if (glossaryList.length > 0) {
-            results.push({
-              id: `free_dict_${entry.word}_${Math.random().toString(36).substring(2, 7)}`,
-              dictId: "free_dict_en",
-              dictName: "English Dictionary",
-              expression: entry.word,
-              reading: phoneticText || entry.word,
-              glossary: glossaryList,
-              rules: "English",
-              score: targetWord === cleanWord ? 120000 : 90000,
-              audioUrl: audioUrl || ""
-            });
-          }
-        });
-      }
-    } catch (e) {
-      // Ignore network or timeout error
+        const glossaryList: string[] = [];
+        if (Array.isArray(entry.meanings)) {
+          entry.meanings.forEach((m: any) => {
+            const pos = m.partOfSpeech ? `(${m.partOfSpeech}) ` : "";
+            if (Array.isArray(m.definitions)) {
+              m.definitions.slice(0, 3).forEach((defObj: any) => {
+                let str = `${pos}${defObj.definition || ""}`;
+                if (defObj.example) {
+                  str += ` e.g. "${defObj.example}"`;
+                }
+                glossaryList.push(str);
+              });
+            }
+          });
+        }
+
+        if (glossaryList.length > 0) {
+          wordResults.push({
+            id: `free_dict_${entry.word}_${Math.random().toString(36).substring(2, 7)}`,
+            dictId: "free_dict_en",
+            dictName: "English Dictionary",
+            expression: entry.word,
+            reading: phoneticText || entry.word,
+            glossary: glossaryList,
+            rules: "English",
+            score: targetWord === cleanWord ? 120000 : 90000,
+            audioUrl: audioUrl || ""
+          });
+        }
+      });
+      return wordResults;
+    } catch {
+      return [];
     }
+  };
+
+  const resultsByWord = await Promise.all(wordsToTry.slice(0, 3).map(w => fetchSingleWord(w)));
+  const results = resultsByWord.flat();
+
+  if (results.length > 0) {
+    englishDictCache.set(cleanWord, results);
   }
 
   return results;
@@ -861,6 +888,10 @@ export class MangaDB {
     const db = await this.init();
     const queryClean = query.trim();
     if (!queryClean) return { terms: [], accents: [], metas: [] };
+
+    const freeDictPromise = /[a-zA-Z]/.test(queryClean)
+      ? fetchFreeEnglishDictionary(queryClean)
+      : Promise.resolve([]);
 
     interface CandidateInfo {
       term: string;

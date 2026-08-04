@@ -51,7 +51,21 @@ function splitIntoMoras(reading: string): string[] {
   return moras;
 }
 
-function playAudio(expression: string, reading: string) {
+function playAudio(expression: string, reading: string, audioUrl?: string) {
+  if (audioUrl) {
+    const audio = new Audio(audioUrl);
+    audio.play().catch(() => {});
+    return;
+  }
+  if (/[a-zA-Z]/.test(expression)) {
+    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(expression);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+  }
   const url = `https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji=${encodeURIComponent(expression)}&kana=${encodeURIComponent(reading)}`;
   const audio = new Audio(url);
   audio.play().catch((err) => {
@@ -644,13 +658,13 @@ function formatWordFurigana(expression: string, reading: string): string {
 
 function TermRuby({ expression, reading, className = "" }: { expression: string; reading?: string; className?: string }) {
   if (!reading || reading === expression) {
-    return <span className={className}>{expression}</span>;
+    return <span className={`${className} whitespace-pre-wrap`}>{expression}</span>;
   }
 
   const segments = generateRubySegments(expression, reading);
 
   return (
-    <span className={`${className} inline-flex flex-wrap items-baseline`}>
+    <span className={`${className} inline-flex flex-wrap items-baseline whitespace-pre-wrap`}>
       {segments.map((seg: any, idx: number) => {
         if (seg.ruby) {
           return (
@@ -663,7 +677,7 @@ function TermRuby({ expression, reading, className = "" }: { expression: string;
           );
         }
         return (
-          <span key={idx} className="leading-none select-text">
+          <span key={idx} className="leading-none select-text whitespace-pre-wrap">
             {seg.text}
           </span>
         );
@@ -738,6 +752,45 @@ function parseTimeToSeconds(timeStr: string | undefined | null): number {
   if (isNaN(hours) || isNaN(minutes) || isNaN(secondsAndMs)) return NaN;
 
   return hours * 3600 + minutes * 60 + secondsAndMs;
+}
+
+interface SubtitleToken {
+  isSpace: boolean;
+  chars: { char: string; index: number }[];
+}
+
+function getSubtitleTokens(text: string): SubtitleToken[] {
+  const tokens: SubtitleToken[] = [];
+  let currentChars: { char: string; index: number }[] = [];
+  let currentIsSpace: boolean | null = null;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const isSpace = char === " " || char === "\t" || char === "\n";
+
+    if (currentIsSpace === null) {
+      currentIsSpace = isSpace;
+      currentChars.push({ char, index: i });
+    } else if (isSpace === currentIsSpace) {
+      currentChars.push({ char, index: i });
+    } else {
+      tokens.push({
+        isSpace: currentIsSpace,
+        chars: currentChars,
+      });
+      currentIsSpace = isSpace;
+      currentChars = [{ char, index: i }];
+    }
+  }
+
+  if (currentChars.length > 0 && currentIsSpace !== null) {
+    tokens.push({
+      isSpace: currentIsSpace,
+      chars: currentChars,
+    });
+  }
+
+  return tokens;
 }
 
 export function cleanSubText(text: string | undefined | null): string {
@@ -1838,6 +1891,14 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     const saved = localStorage.getItem("subminer_sub_height_factor");
     return saved ? parseFloat(saved) : 1;
   });
+  const [subWordSpacing, setSubWordSpacing] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem("subminer_sub_word_spacing");
+      return saved ? parseFloat(saved) : 1;
+    } catch {
+      return 1;
+    }
+  });
   const [subHeightFactorStr, setSubHeightFactorStr] = useState<string>(() => {
     const saved = localStorage.getItem("subminer_sub_height_factor");
     return saved || "1";
@@ -2151,6 +2212,13 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
           setSubHeightFactorStr(savedSubHeight);
         }
       }
+      const savedSubWordSpacing = localStorage.getItem("subminer_sub_word_spacing");
+      if (savedSubWordSpacing) {
+        const parsed = parseFloat(savedSubWordSpacing);
+        if (!isNaN(parsed) && parsed >= 0) {
+          setSubWordSpacing(parsed);
+        }
+      }
       const savedSubBlur = localStorage.getItem("subminer_sub_blur");
       if (savedSubBlur) {
         const parsed = parseFloat(savedSubBlur);
@@ -2191,6 +2259,10 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
   useEffect(() => {
     localStorage.setItem("subminer_sub_height_factor", subHeightFactor.toString());
   }, [subHeightFactor]);
+
+  useEffect(() => {
+    localStorage.setItem("subminer_sub_word_spacing", subWordSpacing.toString());
+  }, [subWordSpacing]);
 
   useEffect(() => {
     localStorage.setItem("subminer_sub_blur", subBlur.toString());
@@ -3193,9 +3265,29 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     }
 
     setSelectedSubText(sentence);
-    setLookupStartIndex(index);
 
-    const isDifferentSelection = index !== lookupStartIndex || sentence !== selectedSubText;
+    const clickedChar = sentence[index] || "";
+    const isEnglishChar = /[a-zA-Z0-9'\u00C0-\u024F]/.test(clickedChar);
+
+    let startIdx = index;
+    let endIdx = index + 1;
+    let queryStr = "";
+
+    if (isEnglishChar) {
+      while (startIdx > 0 && /[a-zA-Z0-9'\u00C0-\u024F]/.test(sentence[startIdx - 1])) {
+        startIdx--;
+      }
+      while (endIdx < sentence.length && /[a-zA-Z0-9'\u00C0-\u024F]/.test(sentence[endIdx])) {
+        endIdx++;
+      }
+      queryStr = sentence.substring(startIdx, endIdx).replace(/^['\s-]+|['\s-]+$/g, "");
+    } else {
+      queryStr = sentence.substring(index, index + 12);
+    }
+
+    setLookupStartIndex(startIdx);
+
+    const isDifferentSelection = startIdx !== lookupStartIndex || sentence !== selectedSubText;
     if (showDictPanel && isDifferentSelection) {
       setShowDictPanel(false);
       const waitTime = isFullscreen ? 300 : 400;
@@ -3208,17 +3300,18 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
     setShowCardCreationList(false);
 
     try {
-      const lookforwardStr = sentence.substring(index, index + 12);
-      const results = await MangaDB.lookupWord(lookforwardStr);
+      const results = await MangaDB.lookupWord(queryStr);
 
-      let matchedLength = 1;
-      if (results && results.terms && results.terms.length > 0) {
-        const topPrefixLen = results.terms[0].matchedPrefixLength || 1;
-        matchedLength = Math.max(1, Math.min(topPrefixLen, lookforwardStr.length));
+      if (isEnglishChar) {
+        setLookupEndIndex(endIdx);
+      } else {
+        let matchedLength = 1;
+        if (results && results.terms && results.terms.length > 0) {
+          const topPrefixLen = results.terms[0].matchedPrefixLength || 1;
+          matchedLength = Math.max(1, Math.min(topPrefixLen, queryStr.length));
+        }
+        setLookupEndIndex(index + matchedLength);
       }
-
-      const finalEndIdx = index + matchedLength;
-      setLookupEndIndex(finalEndIdx);
       setLookupResults(results);
     } catch (err) {
       console.error("Yomitan lookup error:", err);
@@ -3468,7 +3561,7 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
               return (
                 <div
                   key={term.id}
-                  onClick={() => playAudio(term.expression, term.reading || term.expression)}
+                  onClick={() => playAudio(term.expression, term.reading || term.expression, term.audioUrl)}
                   className="bg-zinc-900/50 rounded-md p-3 flex flex-col justify-between hover:bg-zinc-900/80 transition-all duration-200 cursor-pointer border-none relative pr-12"
                   title="Click card to play pronunciation"
                 >
@@ -3860,8 +3953,9 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                               : undefined
                           }
                         >
-                          {cleanText.split("").map((char, index) => {
-                            const isHighlighted = isDragSelecting && draggingSubTextRef.current === cleanText
+                          {getSubtitleTokens(cleanText).map((token, tokenIdx) => {
+                            const renderCharSpan = (char: string, index: number) => {
+                              const isHighlighted = isDragSelecting && draggingSubTextRef.current === cleanText
                               ? (dragStartIdx !== null && dragEndIdx !== null &&
                                  index >= Math.min(dragStartIdx, dragEndIdx) &&
                                  index <= Math.max(dragStartIdx, dragEndIdx))
@@ -3891,14 +3985,34 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
                                 isHighlighted
                                   ? "sub-outline-text-highlighted text-red-300"
                                   : "text-white"
+                              } ${
+                                char === " " ? "whitespace-pre inline-block" : ""
                               }`}
-                              style={getSubStrokeStyle(subStroke)}
+                              style={{
+                                ...getSubStrokeStyle(subStroke),
+                                ...(char === " " ? { minWidth: `${0.35 * subWordSpacing}em`, margin: `0 ${0.1 * subWordSpacing}em` } : {})
+                              }}
                               title="Click to lookup, long-press & drag to select more"
                             >
-                              {char}
+                              {char === " " ? "\u00A0" : char}
                             </span>
                           );
-                        })}
+                        };
+
+                        if (token.isSpace) {
+                          return token.chars.map(({ char, index }) => renderCharSpan(char, index));
+                        }
+
+                        if (token.chars.length <= 25) {
+                          return (
+                            <span key={tokenIdx} className="inline-flex flex-nowrap whitespace-nowrap">
+                              {token.chars.map(({ char, index }) => renderCharSpan(char, index))}
+                            </span>
+                          );
+                        }
+
+                        return token.chars.map(({ char, index }) => renderCharSpan(char, index));
+                      })}
                       </div>
                     );
                   })}

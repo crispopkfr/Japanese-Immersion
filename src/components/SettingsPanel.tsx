@@ -97,6 +97,16 @@ export const SettingsPanel: React.FC = () => {
     }
   });
 
+  // Subtitle word spacing state
+  const [subWordSpacing, setSubWordSpacing] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem("subminer_sub_word_spacing");
+      return saved ? parseFloat(saved) : 1;
+    } catch (e) {
+      return 1;
+    }
+  });
+
   // Subtitle background blur/opacity state
   const [subBlur, setSubBlur] = useState<number>(() => {
     try {
@@ -164,6 +174,8 @@ export const SettingsPanel: React.FC = () => {
       if (savedSubScale) setSubScale(parseFloat(savedSubScale));
       const savedSubHeight = localStorage.getItem("subminer_sub_height_factor");
       if (savedSubHeight) setSubHeightFactor(parseFloat(savedSubHeight));
+      const savedSubWordSpacing = localStorage.getItem("subminer_sub_word_spacing");
+      if (savedSubWordSpacing) setSubWordSpacing(parseFloat(savedSubWordSpacing));
       const savedSubBlur = localStorage.getItem("subminer_sub_blur");
       if (savedSubBlur) setSubBlur(parseFloat(savedSubBlur));
       const savedSubStroke = localStorage.getItem("subminer_sub_stroke");
@@ -277,6 +289,14 @@ export const SettingsPanel: React.FC = () => {
     setSubHeightFactor(newVal);
     try {
       localStorage.setItem("subminer_sub_height_factor", String(newVal));
+    } catch (e) {}
+    window.dispatchEvent(new Event("site-background-updated"));
+  };
+
+  const handleSubWordSpacingChange = (newVal: number) => {
+    setSubWordSpacing(newVal);
+    try {
+      localStorage.setItem("subminer_sub_word_spacing", String(newVal));
     } catch (e) {}
     window.dispatchEvent(new Event("site-background-updated"));
   };
@@ -420,6 +440,7 @@ export const SettingsPanel: React.FC = () => {
       const subScale = localStorage.getItem("subminer_sub_scale") || "1";
       const subsEnabledStr = localStorage.getItem("subminer_subs_enabled") || "true";
       const subHeightFactor = localStorage.getItem("subminer_sub_height_factor") || "1";
+      const subWordSpacing = localStorage.getItem("subminer_sub_word_spacing") || "1";
       const subBlur = localStorage.getItem("subminer_sub_blur") || "0";
       const subStroke = localStorage.getItem("subminer_sub_stroke") || "2";
       const subDelay = localStorage.getItem("subminer_sub_delay") || "0";
@@ -444,6 +465,7 @@ export const SettingsPanel: React.FC = () => {
         subScale: parseFloat(subScale),
         subsEnabled: subsEnabledStr !== "false",
         subHeightFactor: parseFloat(subHeightFactor),
+        subWordSpacing: parseFloat(subWordSpacing),
         subBlur: parseFloat(subBlur),
         subStroke: parseFloat(subStroke),
         subDelay: parseFloat(subDelay),
@@ -552,6 +574,9 @@ export const SettingsPanel: React.FC = () => {
       }
       if (data.subHeightFactor !== undefined) {
         localStorage.setItem("subminer_sub_height_factor", String(data.subHeightFactor));
+      }
+      if (data.subWordSpacing !== undefined) {
+        localStorage.setItem("subminer_sub_word_spacing", String(data.subWordSpacing));
       }
       if (data.subBlur !== undefined) {
         localStorage.setItem("subminer_sub_blur", String(data.subBlur));
@@ -799,6 +824,25 @@ export const SettingsPanel: React.FC = () => {
               >
                 {subsEnabled ? "ON" : "OFF"}
               </button>
+            </div>
+
+            {/* Word Spacing Slider */}
+            <div className="px-4 py-3 flex items-center gap-3">
+              <span className="w-32 text-sm font-sans font-semibold text-zinc-400 uppercase shrink-0 select-none">
+                SPACING {Math.round(subWordSpacing * 100)}%
+              </span>
+              <input
+                type="range"
+                min="0.00"
+                max="3.00"
+                step="0.01"
+                value={subWordSpacing}
+                onChange={(e) => handleSubWordSpacingChange(parseFloat(e.target.value))}
+                style={{
+                  background: `linear-gradient(to right, #d4d4d8 0%, #d4d4d8 ${(subWordSpacing / 3.00) * 100}%, #27272a ${(subWordSpacing / 3.00) * 100}%, #27272a 100%)`
+                }}
+                className="w-full cursor-pointer h-1.5 custom-range outline-none focus:outline-none focus:ring-0 border-none shadow-none ring-0"
+              />
             </div>
 
             {/* Height Slider */}

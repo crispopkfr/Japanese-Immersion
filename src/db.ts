@@ -3,6 +3,192 @@ import { Chapter, Page, DialogueEntry, AnimeTracker } from "./types";
 const DB_NAME = "MangaDialogueEditorDB";
 const DB_VERSION = 4;
 
+export function deinflectEnglish(text: string): string[] {
+  const results = new Set<string>();
+  if (!text) return [];
+
+  const lower = text.toLowerCase().trim();
+  if (!lower) return [];
+
+  const add = (str: string) => {
+    if (str && str.length >= 1) results.add(str);
+  };
+
+  add(lower);
+
+  const irregulars: Record<string, string[]> = {
+    running: ["run"], ran: ["run"], runs: ["run"],
+    went: ["go"], gone: ["go"], going: ["go"], goes: ["go"],
+    saw: ["see"], seen: ["see"], seeing: ["see"], sees: ["see"],
+    came: ["come"], coming: ["come"], comes: ["come"],
+    took: ["take"], taken: ["take"], taking: ["take"], takes: ["take"],
+    got: ["get"], gotten: ["get"], getting: ["get"], gets: ["get"],
+    made: ["make"], making: ["make"], makes: ["make"],
+    said: ["say"], saying: ["say"], says: ["say"],
+    thought: ["think"], thinking: ["think"], thinks: ["think"],
+    bought: ["buy"], buying: ["buy"], buys: ["buy"],
+    brought: ["bring"], bringing: ["bring"], brings: ["bring"],
+    found: ["find"], finding: ["find"], finds: ["find"],
+    knew: ["know"], known: ["know"], knowing: ["know"], knows: ["know"],
+    wrote: ["write"], written: ["write"], writing: ["write"], writes: ["write"],
+    drove: ["drive"], driven: ["drive"], driving: ["drive"], drives: ["drive"],
+    ate: ["eat"], eaten: ["eat"], eating: ["eat"], eats: ["eat"],
+    drank: ["drink"], drunk: ["drink"], drinking: ["drink"], drinks: ["drink"],
+    gave: ["give"], given: ["give"], giving: ["give"], gives: ["give"],
+    spoke: ["speak"], spoken: ["speak"], speaking: ["speak"], speaks: ["speak"],
+    broke: ["break"], broken: ["break"], breaking: ["break"], breaks: ["break"],
+    chose: ["choose"], chosen: ["choose"], choosing: ["choose"], chooses: ["choose"],
+    flew: ["fly"], flown: ["fly"], flying: ["fly"], flies: ["fly"],
+    fell: ["fall"], fallen: ["fall"], falling: ["fall"], falls: ["fall"],
+    held: ["hold"], holding: ["hold"], holds: ["hold"],
+    left: ["leave"], leaving: ["leave"], leaves: ["leave"],
+    felt: ["feel"], feeling: ["feel"], feels: ["feel"],
+    kept: ["keep"], keeping: ["keep"], keeps: ["keep"],
+    meant: ["mean"], meaning: ["mean"], means: ["mean"],
+    met: ["meet"], meeting: ["meet"], meets: ["meet"],
+    paid: ["pay"], paying: ["pay"], pays: ["pay"],
+    sold: ["sell"], selling: ["sell"], sells: ["sell"],
+    stood: ["stand"], standing: ["stand"], stands: ["stand"],
+    understood: ["understand"], understanding: ["understand"], understands: ["understand"],
+    wore: ["wear"], worn: ["wear"], wearing: ["wear"], wears: ["wear"],
+    won: ["win"], winning: ["win"], wins: ["win"],
+    better: ["good", "well"], best: ["good", "well"],
+    worse: ["bad"], worst: ["bad"],
+    children: ["child"], men: ["man"], women: ["woman"],
+    mice: ["mouse"], teeth: ["tooth"], feet: ["foot"], geese: ["goose"], people: ["person"]
+  };
+
+  if (irregulars[lower]) {
+    irregulars[lower].forEach(i => add(i));
+  }
+
+  if (lower.endsWith("ies") && lower.length > 4) {
+    add(lower.slice(0, -3) + "y");
+  }
+  if (lower.endsWith("es") && lower.length > 3) {
+    add(lower.slice(0, -2));
+    add(lower.slice(0, -1));
+  }
+  if (lower.endsWith("s") && !lower.endsWith("ss") && lower.length > 2) {
+    add(lower.slice(0, -1));
+  }
+  if (lower.endsWith("ing") && lower.length > 4) {
+    const stem = lower.slice(0, -3);
+    add(stem);
+    add(stem + "e");
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1));
+    }
+  }
+  if (lower.endsWith("ied") && lower.length > 4) {
+    add(lower.slice(0, -3) + "y");
+  } else if (lower.endsWith("ed") && lower.length > 3) {
+    const stem = lower.slice(0, -2);
+    add(stem);
+    add(stem + "e");
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1));
+    }
+  }
+  if (lower.endsWith("ily") && lower.length > 4) {
+    add(lower.slice(0, -3) + "y");
+  } else if (lower.endsWith("ly") && lower.length > 3) {
+    add(lower.slice(0, -2));
+  }
+  if (lower.endsWith("ier") && lower.length > 4) {
+    add(lower.slice(0, -3) + "y");
+  } else if (lower.endsWith("iest") && lower.length > 5) {
+    add(lower.slice(0, -4) + "y");
+  } else if (lower.endsWith("er") && lower.length > 3) {
+    const stem = lower.slice(0, -2);
+    add(stem);
+    add(stem + "e");
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1));
+    }
+  } else if (lower.endsWith("est") && lower.length > 4) {
+    const stem = lower.slice(0, -3);
+    add(stem);
+    add(stem + "e");
+    if (stem.length >= 3 && stem[stem.length - 1] === stem[stem.length - 2]) {
+      add(stem.slice(0, -1));
+    }
+  }
+
+  return Array.from(results);
+}
+
+async function fetchFreeEnglishDictionary(query: string): Promise<any[]> {
+  const cleanWord = query.replace(/[^a-zA-Z0-9'-]/g, "").trim().toLowerCase();
+  if (!cleanWord || cleanWord.length < 2) return [];
+
+  const wordsToTry = Array.from(new Set([cleanWord, ...deinflectEnglish(cleanWord)]));
+  const results: any[] = [];
+
+  for (const targetWord of wordsToTry) {
+    if (results.length >= 3) break;
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+      const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(targetWord)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) continue;
+
+      const data = await response.json();
+      if (Array.isArray(data)) {
+        data.forEach((entry: any) => {
+          let phoneticText = entry.phonetic || "";
+          let audioUrl = "";
+          if (Array.isArray(entry.phonetics)) {
+            entry.phonetics.forEach((p: any) => {
+              if (!phoneticText && p.text) phoneticText = p.text;
+              if (!audioUrl && p.audio) audioUrl = p.audio;
+            });
+          }
+
+          const glossaryList: string[] = [];
+          if (Array.isArray(entry.meanings)) {
+            entry.meanings.forEach((m: any) => {
+              const pos = m.partOfSpeech ? `(${m.partOfSpeech}) ` : "";
+              if (Array.isArray(m.definitions)) {
+                m.definitions.slice(0, 3).forEach((defObj: any) => {
+                  let str = `${pos}${defObj.definition || ""}`;
+                  if (defObj.example) {
+                    str += ` e.g. "${defObj.example}"`;
+                  }
+                  glossaryList.push(str);
+                });
+              }
+            });
+          }
+
+          if (glossaryList.length > 0) {
+            results.push({
+              id: `free_dict_${entry.word}_${Math.random().toString(36).substring(2, 7)}`,
+              dictId: "free_dict_en",
+              dictName: "English Dictionary",
+              expression: entry.word,
+              reading: phoneticText || entry.word,
+              glossary: glossaryList,
+              rules: "English",
+              score: targetWord === cleanWord ? 120000 : 90000,
+              audioUrl: audioUrl || ""
+            });
+          }
+        });
+      }
+    } catch (e) {
+      // Ignore network or timeout error
+    }
+  }
+
+  return results;
+}
+
 export function deinflectJapanese(text: string): string[] {
   const results = new Set<string>();
   if (!text) return [];
@@ -703,6 +889,15 @@ export class MangaDB {
       const hira = toHiragana(prefix);
       if (hira !== prefix) altKanaList.add(hira);
 
+      if (/[a-zA-Z]/.test(prefix)) {
+        const lower = prefix.toLowerCase();
+        const upper = prefix.toUpperCase();
+        const title = prefix.charAt(0).toUpperCase() + prefix.slice(1).toLowerCase();
+        altKanaList.add(lower);
+        altKanaList.add(upper);
+        altKanaList.add(title);
+      }
+
       for (const p of altKanaList) {
         if (!candidateMap.has(p)) {
           candidateMap.set(p, { term: p, prefixLen: len, isDeinflected: false });
@@ -712,6 +907,15 @@ export class MangaDB {
         for (const d of deinflections) {
           if (d && d !== p && !candidateMap.has(d)) {
             candidateMap.set(d, { term: d, prefixLen: len, isDeinflected: true });
+          }
+        }
+
+        if (/[a-zA-Z]/.test(p)) {
+          const engDeinflections = deinflectEnglish(p);
+          for (const d of engDeinflections) {
+            if (d && d !== p && !candidateMap.has(d)) {
+              candidateMap.set(d, { term: d, prefixLen: len, isDeinflected: true });
+            }
           }
         }
       }
@@ -904,6 +1108,27 @@ export class MangaDB {
               });
             } catch (err) {
               console.error("Failed to fetch tag metas:", err);
+            }
+          }
+
+          if (/[a-zA-Z]/.test(queryClean)) {
+            try {
+              const freeApiTerms = await fetchFreeEnglishDictionary(queryClean);
+              if (freeApiTerms.length > 0) {
+                const existingExpressions = new Set(finalTerms.map(t => (t.expression || "").toLowerCase()));
+                for (const apiTerm of freeApiTerms) {
+                  if (!existingExpressions.has(apiTerm.expression.toLowerCase())) {
+                    finalTerms.push(apiTerm);
+                  } else {
+                    const match = finalTerms.find(t => (t.expression || "").toLowerCase() === apiTerm.expression.toLowerCase());
+                    if (match && !match.audioUrl && apiTerm.audioUrl) {
+                      match.audioUrl = apiTerm.audioUrl;
+                    }
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("Free English Dictionary lookup error:", err);
             }
           }
 

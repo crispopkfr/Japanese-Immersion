@@ -22,7 +22,21 @@ function splitIntoMoras(reading: string): string[] {
   return moras;
 }
 
-function playAudio(expression: string, reading: string) {
+function playAudio(expression: string, reading: string, audioUrl?: string) {
+  if (audioUrl) {
+    const audio = new Audio(audioUrl);
+    audio.play().catch(() => {});
+    return;
+  }
+  if (/[a-zA-Z]/.test(expression)) {
+    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(expression);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+      return;
+    }
+  }
   const url = `https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji=${encodeURIComponent(expression)}&kana=${encodeURIComponent(reading)}`;
   const audio = new Audio(url);
   audio.play().catch((err) => {
@@ -246,13 +260,13 @@ function generateRubySegments(expression: string, reading: string): RubySegment[
 
 function TermRuby({ expression, reading, className = "" }: { expression: string; reading?: string; className?: string }) {
   if (!reading || reading === expression) {
-    return <span className={className}>{expression}</span>;
+    return <span className={`${className} whitespace-pre-wrap`}>{expression}</span>;
   }
 
   const segments = generateRubySegments(expression, reading);
 
   return (
-    <span className={`${className} inline-flex flex-wrap items-baseline`}>
+    <span className={`${className} inline-flex flex-wrap items-baseline whitespace-pre-wrap`}>
       {segments.map((seg, idx) => {
         if (seg.ruby) {
           return (
@@ -265,7 +279,7 @@ function TermRuby({ expression, reading, className = "" }: { expression: string;
           );
         }
         return (
-          <span key={idx} className="leading-none select-text">
+          <span key={idx} className="leading-none select-text whitespace-pre-wrap">
             {seg.text}
           </span>
         );
@@ -996,7 +1010,7 @@ export default function ChapterEditor({
                                 />
                               </div>
                               <button
-                                onClick={() => playAudio(term.expression, term.reading || term.expression)}
+                                onClick={() => playAudio(term.expression, term.reading || term.expression, term.audioUrl)}
                                 className="text-zinc-400 hover:text-white p-1 hover:bg-zinc-800 rounded transition-colors cursor-pointer"
                                 title="Listen pronunciation"
                               >

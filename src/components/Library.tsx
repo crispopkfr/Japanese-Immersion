@@ -323,7 +323,7 @@ export default function Library({ onOpenChapter, onOpenPlayer }: LibraryProps) {
                 {isImportingDict ? "Importing dictionary..." : "Select Yomitan ZIP Dictionary"}
               </p>
               <p className="text-[10px] text-zinc-500 font-mono leading-relaxed max-w-xs mx-auto">
-                Supports Yomichan/Yomitan formats (Terms, Pitch Accents, JLPT, Frequencies)
+                Supports English & Japanese Yomitan/Yomichan ZIP formats + Online Dictionary lookup
               </p>
             </div>
 

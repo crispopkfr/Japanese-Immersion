@@ -45,7 +45,7 @@ export function InteractiveFurigana({ text }: InteractiveFuriganaProps) {
         if (seg.type === "furigana" && seg.kana) {
           return <FuriganaSegment key={seg.id} kanji={seg.text} kana={seg.kana} />;
         }
-        return <span key={seg.id}>{seg.text}</span>;
+        return <span key={seg.id} className="whitespace-pre-wrap">{seg.text}</span>;
       })}
     </span>
   );

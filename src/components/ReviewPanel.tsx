@@ -28,7 +28,7 @@ function RubyFuriganaText({
   const segments = parseFurigana(text);
 
   return (
-    <span className={`${className} inline-flex flex-wrap items-baseline justify-center max-w-full`}>
+    <span className={`${className} inline-flex flex-wrap items-baseline justify-center max-w-full whitespace-pre-wrap`}>
       {segments.map((seg) => {
         if (seg.type === "furigana" && seg.kana) {
           return (
@@ -41,7 +41,7 @@ function RubyFuriganaText({
           );
         }
         return (
-          <span key={seg.id} className="leading-none">
+          <span key={seg.id} className="leading-none whitespace-pre-wrap">
             {seg.text}
           </span>
         );

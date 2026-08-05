@@ -535,10 +535,6 @@ export const CardCreationPanel: React.FC<CardCreationPanelProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
-                  <span className="text-xs font-mono font-bold text-zinc-500 px-1">
-                    {formatCardDueDate(card.due)}
-                  </span>
-
                   <button
                     onClick={() => handleToggleHideCard(card.id)}
                     className="p-1.5 text-center transition-all rounded-md cursor-pointer text-zinc-400 hover:text-white hover:bg-zinc-700/30 flex items-center justify-center border-none outline-none"

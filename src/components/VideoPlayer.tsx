@@ -3761,14 +3761,15 @@ export default function VideoPlayer({ onBackToLibrary }: VideoPlayerProps) {
               >
                 <span>BROWSER</span>
               </button>
-              <button
+              {/* REVIEW tab hidden for now */}
+              {/* <button
                 onClick={toggleReviewPanel}
                 className={`px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer font-bold font-mono text-xs sm:text-sm ${
                   showReviewPanel ? "text-white" : "text-zinc-400 hover:text-white"
                 }`}
               >
                 <span>REVIEW</span>
-              </button>
+              </button> */}
               <button
                 onClick={toggleStatsPanel}
                 className={`px-3 py-1.5 text-center uppercase transition-all rounded-md cursor-pointer font-bold font-mono text-xs sm:text-sm ${
